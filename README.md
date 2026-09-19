@@ -1,9 +1,11 @@
-# PSPingGui
+# pingorganizer
 
-A C++ wxWidgets window with a target textbox, an OK button and a 1–10 Count
+![pingorganizer pinging 1.1.1.1 four times, with the presets column on the right](docs/screenshot.png)
+
+A C++ wxWidgets window with a target textbox, a ▶ run button and a 1–10 Count
 dropdown, above a **real** embedded PowerShell 7 terminal, with a column of
 editable preset targets down the right-hand side, loaded from a text file you
-control. Pressing any OK types
+control. Pressing any ▶ types
 
 ```
 Test-Connection -TargetName '<target>' -Count <n>
@@ -14,6 +16,18 @@ into that shell, exactly as if you had typed it yourself.
 The terminal is not a log pane. It is a full interactive `pwsh.exe` with
 PSReadLine, tab completion, syntax colouring, history, `Ctrl+C`, and resize —
 the same behaviour you get inside Windows Terminal.
+
+**Tested on Windows 11.**
+
+## Download
+
+Grab `pingorganizer-v0.1-win-x64.zip` from the
+[v0.1 release](https://github.com/aigles1/pingorganizer/releases/tag/v0.1),
+unzip it anywhere, and run `PSPingGui.exe`. Keep the `assets` folder next to
+the exe — the terminal is loaded from it.
+
+Nothing else to install on Windows 11 beyond PowerShell 7: the C++ runtime is
+linked into the exe, and the WebView2 Runtime ships with Windows 11.
 
 ## How it works
 
@@ -67,12 +81,14 @@ builds wxWidgets statically — five to ten minutes. After that, rebuilds take
 seconds. `-Clean` starts over; `-Config Debug` builds a debug binary.
 
 Output lands in `build/Release/PSPingGui.exe` with an `assets/` folder beside
-it. Both are needed; the WebView2 loader is linked statically so there is no
-extra DLL to copy.
+it. Both are needed. The WebView2 loader and the MSVC runtime are both linked
+statically, so there is no extra DLL to copy and no Visual C++ Redistributable
+to install.
 
 ### Runtime requirements
 
-- Windows 10 1809 or newer (ConPTY)
+- Tested on Windows 11. Should work on Windows 10 1809 or newer (ConPTY), but
+  that has not been tested.
 - The Evergreen WebView2 Runtime — preinstalled on Windows 11
 - PowerShell 7 (`pwsh.exe`); found via `PATH`, then the usual install locations
 
