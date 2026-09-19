@@ -16,8 +16,12 @@
 
 namespace
 {
+    // Values offered by the Count dropdown. The selection index is looked up in
+    // here rather than treated as the count, so the list need not be contiguous.
+    constexpr int kCountChoices[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100 };
+
     // Test-Connection defaults to 4 echo requests, so start the dropdown there.
-    constexpr int kDefaultCountIndex = 3;
+    constexpr int kDefaultCount = 4;
 
     // Upper bound on generated rows, so a very tall screen cannot spin the
     // fill-to-bottom loop into thousands of controls.
@@ -258,9 +262,12 @@ MainFrame::MainFrame()
 
     wxStaticText* countLabel = new wxStaticText(this, wxID_ANY, "Count");
     m_count = new wxChoice(this, wxID_ANY);
-    for (int i = 1; i <= 10; ++i)
-        m_count->Append(wxString::Format("%d", i));
-    m_count->SetSelection(kDefaultCountIndex);
+    for (const int n : kCountChoices)
+    {
+        m_count->Append(wxString::Format("%d", n));
+        if (n == kDefaultCount)
+            m_count->SetSelection(m_count->GetCount() - 1);
+    }
 
     m_terminal = new TerminalPanel(this);
     m_terminal->OnStatus = [this](const wxString& text) { SetStatusText(text); };
@@ -611,7 +618,10 @@ void MainFrame::RunFor(const wxString& raw, wxTextCtrl* source)
         return;
     }
 
-    const long count = m_count->GetSelection() + 1;
+    const int sel = m_count->GetSelection();
+    const long count = (sel >= 0 && sel < (int)std::size(kCountChoices))
+                           ? kCountChoices[sel]
+                           : kDefaultCount;
     const wxString command =
         wxString::Format("Test-Connection -TargetName '%s' -Count %ld",
                          QuoteForPowerShell(target), count);

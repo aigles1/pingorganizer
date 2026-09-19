@@ -2,8 +2,8 @@
 
 ![pingorganizer pinging 1.1.1.1 four times, with the presets column on the right](docs/screenshot.png)
 
-A C++ wxWidgets window with a target textbox, a ▶ run button and a 1–10 Count
-dropdown, above a **real** embedded PowerShell 7 terminal, with a column of
+A C++ wxWidgets window with a target textbox, a ▶ run button and a Count
+dropdown (1–10, 15, 20, 50 or 100), above a **real** embedded PowerShell 7 terminal, with a column of
 editable preset targets down the right-hand side, loaded from a text file you
 control. Pressing any ▶ types
 
@@ -21,8 +21,8 @@ the same behaviour you get inside Windows Terminal.
 
 ## Download
 
-Grab `pingorganizer-v0.1-win-x64.zip` from the
-[v0.1 release](https://github.com/aigles1/pingorganizer/releases/tag/v0.1),
+Grab `pingorganizer-v0.2-win-x64.zip` from the
+[latest release](https://github.com/aigles1/pingorganizer/releases/latest),
 unzip it anywhere, and run `PSPingGui.exe`. Keep the `assets` folder next to
 the exe — the terminal is loaded from it.
 
