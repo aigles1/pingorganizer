@@ -1,0 +1,10 @@
+# CMake build output (wxWidgets, WebView2 SDK and the exe all land here)
+build/
+out/
+
+# IDE / editor
+.vs/
+.vscode/
+*.user
+CMakeSettings.json
+CMakeUserPresets.json

@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'">
+<link rel="stylesheet" href="xterm.css">
+<style>
+  html, body { margin:0; padding:0; height:100%; background:#0C0C0C; overflow:hidden; }
+  #term { position:absolute; inset:0; padding:6px 4px 4px 8px; box-sizing:border-box; }
+  .xterm-viewport::-webkit-scrollbar { width:11px; }
+  .xterm-viewport::-webkit-scrollbar-track { background:#0C0C0C; }
+  .xterm-viewport::-webkit-scrollbar-thumb { background:#3F3F3F; border:2px solid #0C0C0C; border-radius:6px; }
+  .xterm-viewport::-webkit-scrollbar-thumb:hover { background:#5A5A5A; }
+</style>
+</head>
+<body>
+  <div id="term"></div>
+  <script src="xterm.js"></script>
+  <script src="addon-fit.js"></script>
+  <script src="bridge.js"></script>
+</body>
+</html>
