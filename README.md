@@ -100,11 +100,32 @@ to install.
 %APPDATA%\PingOrganizer\presets.txt
 ```
 
-One target per line; blank lines and `#` comments ignored. The file is created
+One target per line; blank lines and `#` comments ignored. A line containing
+`=` is a setting rather than a target — no hostname or IP address, v4 or v6, can
+contain one — and the only setting today is `appearance = light` or
+`appearance = dark` (see Dark mode below). The file is created
 with a default list on first run, so there is something to edit rather than a
 blank page, and the app falls back to that built-in list (`kDefaultPresets` in
-`src/main.cpp`) if the file is missing, unreadable or empty. Changes take effect
-on restart. Hovering the **Presets** heading shows the full path.
+`src/main.cpp`) if the file is missing, unreadable or empty. Hovering the
+**Presets** heading shows the full path.
+
+**Edits in the preset boxes are saved to the file.** An edit is written when
+you leave the box, when you run that preset with ▶ or Enter, and when the app
+closes — so one still being typed when you quit is not lost. Only the target
+lines are rewritten, and the file is re-read from disk first: comments, blank
+lines and the `appearance` setting stay exactly where they were, and the list
+from the boxes fills the existing target lines in order, so hand-made grouping
+survives. A cleared box drops its line; text typed into a spare row is added
+after the last target. A value containing `=` or starting with `#` is not
+written, because it would read back as a setting or a comment — typing
+`appearance = dark` into a box must not change the appearance — and the status
+bar says so. Clearing every box leaves no targets, which on the next start
+brings back the built-in defaults.
+
+Changes made to the file *directly*, in an editor, still need a restart to
+show. And the two can collide: the app's boxes are the list it writes, so after
+editing targets in Notepad while the app runs, an edit in the app will write its
+own list over them. Edit in one place at a time.
 
 It lives under `%APPDATA%` rather than beside the exe because `build.ps1 -Clean`
 deletes `build/` wholesale, which would take user config with it.
@@ -136,7 +157,8 @@ applies to presets too.
 
 **Menus.** File → Presets opens `presets.txt` in whatever application is
 registered for `.txt` (recreating the file first if it has been deleted), File →
-Exit closes the app, and Help → About shows a clickable project link.
+Exit closes the app, Appearance → Dark Mode / Light Mode switches the window's
+colours (see below), and Help → About shows a clickable project link.
 `kProjectUrl` at the top of `src/main.cpp` points at this repository.
 
 **Window colour, and the menu bar.** The frame and presets panel use
@@ -160,6 +182,80 @@ Being undocumented, this is the one part of the app Microsoft could break. The
 failure mode is benign: if a future Windows stops sending the messages the
 handlers never run, and the bar goes back to white while everything else keeps
 working. Deleting the three handlers and their structures reverts it.
+
+**Dark mode.** Appearance → Dark Mode turns the whole window black with light
+grey text, live, and the item then reads Light Mode to switch back. The colours
+are the terminal's own Campbell scheme — `#0C0C0C` background, `#CCCCCC` text —
+so the window and the shell read as one surface.
+
+wxWidgets 3.3 has a dark mode built in, but on Windows it can only be chosen
+before the first window is created (`wxApp::SetAppearance` returns
+`CannotChange` after that), so it cannot sit behind a menu item. The toggle does
+the same work by hand, per window, in both directions:
+
+| Part | How |
+|---|---|
+| Title bar | `DwmSetWindowAttribute` — immersive dark mode plus caption and caption-text colours. Documented; the colours need Windows 11 |
+| Textboxes, Count dropdown | wx colours plus the `DarkMode_CFD` visual style; the dropdown's list window gets `DarkMode_Explorer` |
+| ▶ run buttons | Custom-drawn: the dark style's own `#333333` fill and white glyph, without the two-pixel light border it cannot be told to omit |
+| Presets scrollbar, About's OK button | `DarkMode_Explorer` visual style |
+| Status bar | the `ExplorerStatusBar` theme id, as wxWidgets' own dark mode does |
+| Menu bar | the UAH painting above, drawn from the active palette |
+| Popup menus | Owner-drawn: black items with light text, a dimmer accelerator column and a `#2A2A2A` highlight, a black background brush, and a `#3F3F3F` outline |
+| About dialog | themed when opened, if dark |
+
+Light mode undoes each of these rather than repainting light colours on top:
+controls get `wxNullColour` and `SetWindowTheme(nullptr, nullptr)`, which puts
+back the stock appearance exactly. Measured after a dark round trip, every
+sampled point matches a fresh start. Preset rows created while dark (the column
+grows on resize) are themed as they are born, and revert with the rest.
+
+Two of those are drawn by the app rather than styled, because Windows' dark
+styles are not black and have no colour settings.
+
+The **run buttons** are a small `wxButton` subclass, `RunButton`, which answers
+`NM_CUSTOMDRAW` while dark and is a stock button otherwise. It paints at the
+*post-paint* stage, over the stock rendering, rather than skipping the stock
+rendering at pre-paint: a themed button draws into an off-screen buffer, and
+`CDRF_SKIPDEFAULT` makes it discard that buffer, so pre-paint drawing never
+reaches the screen — the result is a blank grey box. Keyboard focus shows as a
+quiet grey outline, and only after Tab has been used.
+
+The **popup menus** are switched to `MFT_OWNERDRAW` item by item while dark,
+touching only the type bits so turning it off restores the exact items
+wxWidgets built. `MainFrame` answers `WM_MEASUREITEM`/`WM_DRAWITEM` for those
+items before wxWidgets sees them, checking each item against the set it
+converted, so anything else is passed on untouched. On Windows 11 the menu's
+outline is drawn by DWM, and wxWidgets — not being in its own dark mode — gives
+owner-drawn popups rounded corners and the light theme's outline colour on
+`WM_ENTERIDLE`, which recurs every time the pointer moves to another item.
+While dark the frame keeps that message from wxWidgets entirely and styles the
+popup itself: rounded corners, a `#3F3F3F` `DWMWA_BORDER_COLOR`, no square drop
+shadow. It does the same on the undocumented menu-init message (`0x93`), before
+the popup is first shown. (A first version let wxWidgets run and recoloured
+afterwards; the outline flashed light each time the highlight moved.)
+`SetPreferredAppMode` and
+`FlushMenuThemes` (uxtheme, by ordinal only) still set the process-wide menu
+mode alongside.
+
+The divider between the terminal and the presets column is painted by the app
+rather than being a `wxStaticLine`, because Windows draws that as an etched pair
+in fixed system colours — a white stripe on black. Light mode paints the same
+two system colours the etched line used, so it looks as it did.
+
+The choice is remembered in `presets.txt` as an `appearance = dark` or
+`appearance = light` line; no line means light. On a dark start the theme is
+applied before the window is first shown, so it never flashes light. Each toggle
+re-reads the file from disk and rewrites only that line (adding it below the
+header comments if a file predates the setting), so presets edited and saved in
+an editor while the app runs are kept. The one thing it cannot guard against is
+an editor holding *unsaved* changes: save those after a toggle and the editor's
+copy wins, losing the toggle but not the presets.
+
+Known gaps: the status bar comes out `#1C1C1C`, the theme's own near-black,
+rather than `#0C0C0C`, and tooltips stay light. The visual-style names and the
+uxtheme ordinals are undocumented; each fails soft, leaving that one element
+light.
 
 **Top row alignment.** The target box and the terminal are cells in the same
 column of one `wxFlexGridSizer`, which is what makes them exactly the same width
