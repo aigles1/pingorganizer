@@ -13,8 +13,8 @@ namespace
 {
     // Any hostname works as long as it never resolves publicly; ".invalid" is
     // reserved by RFC 2606 for exactly this.
-    constexpr wchar_t kVirtualHost[] = L"psping.invalid";
-    constexpr wchar_t kStartPage[] = L"https://psping.invalid/terminal.html";
+    constexpr wchar_t kVirtualHost[] = L"pingorganizer.invalid";
+    constexpr wchar_t kStartPage[] = L"https://pingorganizer.invalid/terminal.html";
 
     wxString AssetsDir()
     {
