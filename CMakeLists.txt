@@ -104,7 +104,8 @@ target_compile_definitions(PingOrganizer PRIVATE
     _WIN32_WINNT=0x0A00          # ConPTY needs the Windows 10 SDK surface
     WINVER=0x0A00)
 
-target_link_libraries(PingOrganizer PRIVATE wxcore wxbase WebView2)
+target_link_libraries(PingOrganizer PRIVATE wxcore wxbase WebView2
+    dwmapi uxtheme)       # title bar and control theming for dark mode
 
 if(MSVC)
     target_compile_options(PingOrganizer PRIVATE /W4 /permissive- /utf-8 /MP)
