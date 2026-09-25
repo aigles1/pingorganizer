@@ -1,6 +1,6 @@
 # pingorganizer
 
-![pingorganizer pinging 1.1.1.1 four times, with the presets column on the right](docs/screenshot.png)
+![pingorganizer in dark mode pinging 1.1.1.1 four times, with the presets column on the right](docs/screenshot.png)
 
 A C++ wxWidgets window with a target textbox, a ▶ run button and a Count
 dropdown (1–10, 15, 20, 50 or 100), above a **real** embedded PowerShell 7 terminal, with a column of
@@ -21,10 +21,14 @@ the same behaviour you get inside Windows Terminal.
 
 ## Download
 
-Grab `pingorganizer-v0.2-win-x64.zip` from the
+Grab `pingorganizer-v0.3-win-x64.zip` from the
 [latest release](https://github.com/aigles1/pingorganizer/releases/latest),
-unzip it anywhere, and run `PingOrganizer.exe`. Keep the `assets` folder next to
-the exe — the terminal is loaded from it.
+unzip it anywhere, and run `PingOrganizer.exe` from the `PingOrganizer` folder
+inside. Keep the `assets` folder next to the exe — the terminal is loaded from
+it.
+
+Coming from v0.2 or earlier, when the app was called PSPingGui? Your presets
+are copied across to the new location automatically the first time v0.3 runs.
 
 Nothing else to install on Windows 11 beyond PowerShell 7: the C++ runtime is
 linked into the exe, and the WebView2 Runtime ships with Windows 11.
