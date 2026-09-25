@@ -1,7 +1,7 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-    Configures and builds PSPingGui.
+    Configures and builds PingOrganizer.
 
 .DESCRIPTION
     First run downloads wxWidgets, the WebView2 SDK and xterm.js, then builds
@@ -41,7 +41,7 @@ Write-Host "Building ($Config)..." -ForegroundColor Cyan
 cmake --build $buildDir --config $Config --parallel
 if ($LASTEXITCODE -ne 0) { throw "Build failed ($LASTEXITCODE)." }
 
-$exe = Join-Path $buildDir "$Config\PSPingGui.exe"
+$exe = Join-Path $buildDir "$Config\PingOrganizer.exe"
 if (-not (Test-Path $exe)) { throw "Built, but $exe is missing." }
 
 Write-Host "`nBuilt: $exe" -ForegroundColor Green

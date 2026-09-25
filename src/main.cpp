@@ -1,4 +1,5 @@
 #include <wx/wx.h>
+#include <wx/filefn.h>
 #include <wx/filename.h>
 #include <wx/hyperlink.h>
 #include <wx/scrolwin.h>
@@ -50,11 +51,31 @@ namespace
         "76.76.2.1",
     };
 
-    // %APPDATA%\PSPingGui\presets.txt - deliberately not next to the exe, which
+    // %APPDATA%\PingOrganizer\presets.txt - deliberately not next to the exe, which
     // build.ps1 -Clean deletes wholesale.
     wxFileName PresetsPath()
     {
         return wxFileName(wxStandardPaths::Get().GetUserDataDir(), "presets.txt");
+    }
+
+    // Releases up to v0.2 were called PSPingGui, and the app name decides the
+    // config folder, so their presets live in %APPDATA%\PSPingGui. Carry an
+    // existing file across the first time this build runs. Copy, not move, so
+    // an older build pointed at the old folder keeps working too.
+    void MigrateLegacyPresets(const wxFileName& path)
+    {
+        if (path.FileExists())
+            return;
+
+        wxFileName legacy(path);
+        legacy.RemoveLastDir();
+        legacy.AppendDir("PSPingGui");
+        if (!legacy.FileExists())
+            return;
+
+        if (!wxFileName::DirExists(path.GetPath()))
+            wxFileName::Mkdir(path.GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+        wxCopyFile(legacy.GetFullPath(), path.GetFullPath(), false);
     }
 
     void SeedPresetsFile(const wxFileName& path)
@@ -66,7 +87,7 @@ namespace
         if (!file.Create())
             return;
 
-        file.AddLine("# PSPingGui presets - one target per line.");
+        file.AddLine("# PingOrganizer presets - one target per line.");
         file.AddLine("# Blank lines and lines starting with # are ignored.");
         file.AddLine("# Edit freely, then restart the app.");
         file.AddLine(wxEmptyString);
@@ -80,6 +101,7 @@ namespace
         std::vector<wxString> out;
 
         const wxFileName path = PresetsPath();
+        MigrateLegacyPresets(path);
         if (!path.FileExists())
             SeedPresetsFile(path);
 
@@ -576,9 +598,9 @@ void MainFrame::OnExit(wxCommandEvent& WXUNUSED(event))
 
 void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-    wxDialog dlg(this, wxID_ANY, "About PSPingGui");
+    wxDialog dlg(this, wxID_ANY, "About PingOrganizer");
 
-    wxStaticText* name = new wxStaticText(&dlg, wxID_ANY, "PSPingGui");
+    wxStaticText* name = new wxStaticText(&dlg, wxID_ANY, "PingOrganizer");
     wxFont nameFont = name->GetFont();
     nameFont.MakeBold().MakeLarger();
     name->SetFont(nameFont);
@@ -634,7 +656,7 @@ void MainFrame::RunFor(const wxString& raw, wxTextCtrl* source)
     SetStatusText(command);
 }
 
-class PSPingApp : public wxApp
+class PingOrganizerApp : public wxApp
 {
 public:
     bool OnInit() override
@@ -642,10 +664,10 @@ public:
         if (!wxApp::OnInit())
             return false;
 
-        SetAppName("PSPingGui");
+        SetAppName("PingOrganizer");
         (new MainFrame())->Show();
         return true;
     }
 };
 
-wxIMPLEMENT_APP(PSPingApp);
+wxIMPLEMENT_APP(PingOrganizerApp);

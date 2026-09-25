@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(PSPingGui LANGUAGES CXX)
+project(PingOrganizer LANGUAGES CXX)
 
 if(NOT WIN32)
     message(FATAL_ERROR "Windows only: this app is built on ConPTY and WebView2.")
@@ -90,7 +90,7 @@ vendor_asset("https://cdn.jsdelivr.net/npm/@xterm/addon-fit@${XTERM_FIT_VERSION}
 # ---------------------------------------------------------------------------
 # The app.
 # ---------------------------------------------------------------------------
-add_executable(PSPingGui WIN32
+add_executable(PingOrganizer WIN32
     src/main.cpp
     src/TerminalPanel.cpp
     src/TerminalPanel.h
@@ -99,18 +99,18 @@ add_executable(PSPingGui WIN32
     src/Base64.h
     src/app.rc)
 
-target_compile_definitions(PSPingGui PRIVATE
+target_compile_definitions(PingOrganizer PRIVATE
     UNICODE _UNICODE NOMINMAX
     _WIN32_WINNT=0x0A00          # ConPTY needs the Windows 10 SDK surface
     WINVER=0x0A00)
 
-target_link_libraries(PSPingGui PRIVATE wxcore wxbase WebView2)
+target_link_libraries(PingOrganizer PRIVATE wxcore wxbase WebView2)
 
 if(MSVC)
-    target_compile_options(PSPingGui PRIVATE /W4 /permissive- /utf-8 /MP)
+    target_compile_options(PingOrganizer PRIVATE /W4 /permissive- /utf-8 /MP)
 endif()
 
-add_custom_command(TARGET PSPingGui POST_BUILD
+add_custom_command(TARGET PingOrganizer POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${ASSET_DIR}" "$<TARGET_FILE_DIR:PSPingGui>/assets"
+            "${ASSET_DIR}" "$<TARGET_FILE_DIR:PingOrganizer>/assets"
     COMMENT "Staging xterm.js assets next to the executable")

@@ -23,7 +23,7 @@ the same behaviour you get inside Windows Terminal.
 
 Grab `pingorganizer-v0.2-win-x64.zip` from the
 [latest release](https://github.com/aigles1/pingorganizer/releases/latest),
-unzip it anywhere, and run `PSPingGui.exe`. Keep the `assets` folder next to
+unzip it anywhere, and run `PingOrganizer.exe`. Keep the `assets` folder next to
 the exe — the terminal is loaded from it.
 
 Nothing else to install on Windows 11 beyond PowerShell 7: the C++ runtime is
@@ -80,7 +80,7 @@ The first run downloads wxWidgets 3.3.2, the WebView2 SDK and xterm.js, then
 builds wxWidgets statically — five to ten minutes. After that, rebuilds take
 seconds. `-Clean` starts over; `-Config Debug` builds a debug binary.
 
-Output lands in `build/Release/PSPingGui.exe` with an `assets/` folder beside
+Output lands in `build/Release/PingOrganizer.exe` with an `assets/` folder beside
 it. Both are needed. The WebView2 loader and the MSVC runtime are both linked
 statically, so there is no extra DLL to copy and no Visual C++ Redistributable
 to install.
@@ -97,7 +97,7 @@ to install.
 **Presets.** The right-hand column is read from a plain text file:
 
 ```
-%APPDATA%\PSPingGui\presets.txt
+%APPDATA%\PingOrganizer\presets.txt
 ```
 
 One target per line; blank lines and `#` comments ignored. The file is created
@@ -108,6 +108,11 @@ on restart. Hovering the **Presets** heading shows the full path.
 
 It lives under `%APPDATA%` rather than beside the exe because `build.ps1 -Clean`
 deletes `build/` wholesale, which would take user config with it.
+
+Releases up to v0.2 were named PSPingGui and kept the file in
+`%APPDATA%\PSPingGui\` instead. On first run, if there is no file in the new
+location but there is one in the old, it is copied across, so an upgrade keeps
+your presets. The old file is left in place, so an older build still finds its own.
 
 Below the configured entries the column keeps generating blank rows until it
 reaches the bottom of the window, so spare slots are always to hand. Rows are
